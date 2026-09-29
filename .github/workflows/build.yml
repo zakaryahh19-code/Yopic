@@ -1,0 +1,39 @@
+name: Build Yopic APK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-17-jdk python3-pip zip unzip
+          pip install --upgrade pip
+          pip install buildozer cython==0.29.33
+
+      - name: Unzip Yopic
+        run: |
+          unzip -o Yopic.zip -d .
+          ls -la
+          cat buildozer.spec
+
+      - name: Build APK
+        run: |
+          buildozer android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Yopic-APK
+          path: bin/*.apk
